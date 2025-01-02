@@ -7,15 +7,24 @@ from analyze_data import analyze_excel_data
 import time
 
 def check_dependencies():
-    try:
-        import pandas
-        import openpyxl
-        import xlrd
-    except ImportError as e:
-        print("缺少必要的依赖包，正在安装...")
-        import subprocess
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas", "openpyxl", "xlrd>=2.0.1"])
-        print("依赖包安装完成")
+    required_packages = ['pandas', 'openpyxl', 'xlrd']
+    missing_packages = []
+    
+    for package in required_packages:
+        try:
+            __import__(package)
+        except ImportError:
+            missing_packages.append(package)
+    
+    if missing_packages:
+        print(f"缺少必要的依赖包：{', '.join(missing_packages)}，正在安装...")
+        try:
+            import subprocess
+            subprocess.check_call([sys.executable, "-m", "pip", "install"] + missing_packages)
+            print("依赖包安装完成")
+        except subprocess.CalledProcessError as e:
+            print(f"安装依赖包时出错：{str(e)}")
+            sys.exit(1)
 
 def main():
     check_dependencies()
