@@ -23,7 +23,6 @@ jobs:
     - name: List directory contents
       run: |
         dir
-        dir .github\workflows
         
     - name: Install dependencies
       run: |
