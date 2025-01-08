@@ -14,22 +14,25 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        path: source
     
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
         
+    - name: Show workspace
+      run: |
+        echo "Workspace directory:"
+        pwd
+        echo "Files in workspace:"
+        dir
+        
     - name: Install dependencies
-      working-directory: source
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
     - name: Build with PyInstaller
-      working-directory: source
       run: |
         pyinstaller --noconfirm --onefile --windowed --icon=NONE --name "低负毛利报表" main.py
         
@@ -37,4 +40,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: 低负毛利报表
-        path: source/dist/低负毛利报表.exe
+        path: dist/低负毛利报表.exe
