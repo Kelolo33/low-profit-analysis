@@ -125,9 +125,10 @@ class DataAnalysisGUI:
             text="准备就绪",
             fg="#666666",  # 深灰色文字
             bg='#F0F0F0',
-            font=('SF Pro Text', 12)  # 使用 macOS 风格的字体
+            font=('SF Pro Text', 10),  # 使用更小的字体
+            anchor='w'  # 左对齐
         )
-        self.status_label.pack(pady=(10, 0))
+        self.status_label.pack(side='bottom', fill='x', padx=5, pady=(10, 5))  # 放在底部，左对齐
 
     def select_input_file(self):
         self.input_file = filedialog.askopenfilename(
