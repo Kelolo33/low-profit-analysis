@@ -60,7 +60,8 @@ class DataAnalysisGUI:
             text="未选择文件", 
             fg="red", 
             width=label_width,
-            bg='#F0F0F0'  # 设置标签背景色
+            bg='#F0F0F0',  # 设置标签背景色
+            font=('Arial', 9)  # 设置字体大小为9
         )
         self.subscription_ok.grid(row=0, column=1, pady=10, padx=(10, 0), sticky="w")
 
@@ -79,14 +80,15 @@ class DataAnalysisGUI:
             text="未选择文件", 
             fg="red", 
             width=label_width,
-            bg='#F0F0F0'
+            bg='#F0F0F0',
+            font=('Arial', 9)  # 设置字体大小为9
         )
         self.input_ok.grid(row=1, column=1, pady=10, padx=(10, 0), sticky="w")
 
         # 输出文件
         self.output_button = tk.Button(
             button_frame, 
-            text="选择输出文件", 
+            text="选择保存位置", 
             command=self.select_output_file, 
             width=button_width, 
             height=button_height,
@@ -98,37 +100,33 @@ class DataAnalysisGUI:
             text="未选择文件", 
             fg="red", 
             width=label_width,
-            bg='#F0F0F0'
+            bg='#F0F0F0',
+            font=('Arial', 9)  # 设置字体大小为9
         )
         self.output_ok.grid(row=2, column=1, pady=10, padx=(10, 0), sticky="w")
 
-        # 开始分析按钮 - 使用突出显示的样式
-        analyze_button_style = {
-            'bg': '#007AFF',  # macOS 风格的蓝色
-            'fg': '#FFFFFF',  # 白色文字
-            'relief': 'flat',  # 无边框
-            'highlightthickness': 0
-        }
-        
+        # 开始分析按钮
         self.analyze_button = tk.Button(
-            button_frame, 
-            text="开始分析", 
-            command=self.start_analysis, 
-            width=button_width, 
+            button_frame,
+            text="开始分析",
+            command=self.start_analysis,
+            width=button_width,
             height=button_height,
-            **analyze_button_style
+            **button_style
         )
         self.analyze_button.grid(row=3, column=0, pady=10, sticky="w")
 
-        # 处理中标签
-        self.processing_label = tk.Label(
-            button_frame, 
-            text="", 
-            fg="red", 
-            width=label_width,
-            bg='#F0F0F0'
+        # 处理标志
+        self.processing_done = threading.Event()
+
+        # 创建状态标签
+        self.status_label = tk.Label(
+            main_frame,
+            text="准备就绪",
+            bg='#F0F0F0',
+            font=('Arial', 9)  # 设置字体大小为9
         )
-        self.processing_label.grid(row=3, column=1, pady=10, padx=(10, 0), sticky="w")
+        self.status_label.pack(pady=(10, 0))
 
         # 添加进度框架
         progress_frame = tk.Frame(button_frame, bg='#F0F0F0')
@@ -191,13 +189,11 @@ class DataAnalysisGUI:
             self.output_ok.config(text="未选择文件", fg="red")
 
     def _update_gui(self, text):
-        """更新GUI显示"""
-        try:
-            self.progress_label.config(text=text)
-            self.processing_label.config(text="处理中...")
-            self.master.update()
-        except:
-            pass
+        """
+        更新GUI显示的状态文本
+        """
+        self.status_label.config(text=text, font=('Arial', 9))  # 设置字体大小为9
+        self.master.update()
 
     def _enable_button(self):
         """重新启用按钮"""
