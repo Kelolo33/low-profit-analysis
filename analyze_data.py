@@ -138,6 +138,9 @@ def process_subscription_file(subscription_file):
         '未税人民币总收入': 'sum'
     }).reset_index()
     
+    # 计算每个二级部门和委托客户的总票数
+    total_tickets = df.groupby(['二级部门', '委托客户']).size().reset_index(name='总票数')
+    
     # 安全地计算总利润率
     def calculate_profit_rate(row):
         if pd.isna(row['未税人民币总收入']) or row['未税人民币总收入'] == 0:
@@ -151,8 +154,10 @@ def process_subscription_file(subscription_file):
         lambda x: x if abs(x) <= 1 else (1 if x > 1 else -1)
     )
     
-    # 合并总利润率到grouped_data
+    # 合并总利润率和总票数到grouped_data
     grouped_data = pd.merge(grouped_data, total_stats[['二级部门', '委托客户', '总利润率']], 
+                          on=['二级部门', '委托客户'], how='left')
+    grouped_data = pd.merge(grouped_data, total_tickets, 
                           on=['二级部门', '委托客户'], how='left')
     
     return grouped_data, business_month
@@ -243,18 +248,16 @@ def analyze_excel_data(input_file, output_file, subscription_file, status_callba
         
         # 创建客户公司分析数据
         customer_analysis = result_df.groupby(['法人部门', '委托客户']).agg({
-            '费率单号': lambda x: len(x.unique()),  # 统计唯一费率单号的数量
             '费目利润': 'sum',  # 总金额
         }).reset_index()
 
         customer_analysis['初步分析'] = result_df.groupby(['法人部门', '委托客户']).apply(format_analysis).reset_index(drop=True)
         customer_analysis = customer_analysis.rename(columns={
-            '费率单号': '总票数',
             '费目利润': '总金额',
         })
     else:
         # 如果没有预对账文件，创建一个空的customer_analysis DataFrame
-        customer_analysis = pd.DataFrame(columns=['法人部门', '委托客户', '总票数', '总金额', '初步分析'])
+        customer_analysis = pd.DataFrame(columns=['法人部门', '委托客户', '总金额', '初步分析'])
 
     # 创建法人部门和二级部门的对应关系映射
     dept_mapping = {
